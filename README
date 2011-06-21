@@ -1,0 +1,6 @@
+Leaflet is a modern, lightweight BSD-licensed JavaScript library for making 
+tile-based interactive maps for both desktop and mobile web browsers, 
+developed by CloudMade to form the core of its next generation JavaScript API.
+
+The MapClusterer extends the Map class of this library and get ability to show 
+markers in clusters
