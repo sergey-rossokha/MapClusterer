@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="leaflet/leaflet.css" />
+        <!--[if lte IE 8]>
+	        <link rel="stylesheet" href="leaflet/leaflet.ie.css" />
+        <![endif]-->
+
+        <script src="leaflet/leaflet.js" language="javascript" type="text/javascript"></script>
+	<script src="src/habitatum.map.js" language="javascript" type="text/javascript"></script>
+    </head>
+    <body>
+	    <div id="map" style="height: 600px"></div>
+	
+	    <script language="javascript" type="text/javascript">
+	        var map = new HabitatumMap('map', 'a262d37f27f54ce2af83dc7e8ef00c57');
+			
+			var markers = [];
+			
+			var step = -0.09;
+			for(var markerIndex = 0; markerIndex < 10; markerIndex++){
+	
+				var marker = new HabitatumMarker(new L.LatLng(51.5, step), "text");
+				markers.push(marker);
+				step = step - 0.01;
+			}
+			
+			var step = -0.09;
+			for(var markerIndex = 0; markerIndex < 10; markerIndex++){
+	
+				var marker = new HabitatumMarker(new L.LatLng(56.5, step), "text");
+				markers.push(marker);
+				step = step - 0.01;
+			}
+			
+			map.addMarkers(markers);
+			map.redraw(true);
+	    </script>
+    </body>
+</html>
