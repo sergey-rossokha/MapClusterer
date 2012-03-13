@@ -386,19 +386,18 @@ function HabitatumCluster(habitatumMap) {
 	
   this.createClusterMarker = function(latlng, text, padding){
     var  marker = new L.CircleMarkerEx(latlng, { color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: 20, label: text });
-		
-	
-	marker.on('click', function (){
-	    var pos = map.project(latlng);
-		var sw = new L.Point(pos.x - padding, pos.y + padding);
-		sw = map.unproject(sw);
-		var ne = new L.Point(pos.x + padding, pos.y - padding);
-		ne = map.unproject(ne);
-		var zoom = map.getBoundsZoom(new L.LatLngBounds(sw, ne), map.getSize());
-		map.setView( latlng, zoom );
-	});
-	
-	return marker;
+
+  	marker.on('click', function (){
+  	    var pos = map.project(latlng);
+  		var sw = new L.Point(pos.x - padding, pos.y + padding);
+  		sw = map.unproject(sw);
+  		var ne = new L.Point(pos.x + padding, pos.y - padding);
+  		ne = map.unproject(ne);
+  		var zoom = map.getBoundsZoom(new L.LatLngBounds(sw, ne), map.getSize());
+  		map.setView( latlng, zoom );
+  	});
+  	
+  	return marker;
   };
 
   this.removeClusterMarker = function () {
@@ -412,15 +411,15 @@ function HabitatumCluster(habitatumMap) {
 	
   this.hideClusterMarker = function () {
     if (null != clusterMarker){
-		map.removeLayer(clusterMarker);
-		isClusterMarkerHidden = true;
+		  map.removeLayer(clusterMarker);
+		  isClusterMarkerHidden = true;
     }
   };
 	
   this.showClusterMarker = function () {
     if (null != clusterMarker){
-		map.addLayer(clusterMarker);
-		isClusterMarkerHidden = false;
+		  map.addLayer(clusterMarker);
+		  isClusterMarkerHidden = false;
 	}
   };
   
@@ -596,7 +595,7 @@ function HabitatumCluster(habitatumMap) {
 }
 
 function HabitatumMarker(latlng, text){
-	this.map_ = null;
+	this.map_ = map;
 	this.latlng_ = latlng;
 	this.isHidden_ = false;
 	
@@ -643,12 +642,20 @@ L.CircleMarkerEx = L.CircleMarker.extend({
 			this._label = options.label;
 		}
 		L.CircleMarker.prototype.initialize.call(this, latlng, options);
+
+    if(!this._createElement)
+    {
+      if (L.VERSION == "0.4"){
+        this._createElement = L.CircleMarker.prototype._createElement;
+      }
+      else if (L.VERSION == "0.3"){
+        this._createElement = L.CircleMarker._createElement;
+      }
+    }
 	},
 	
 	_initPath: function() {
-	
 		var point = this._map.latLngToLayerPoint(this._latlng);
-		
 		this._container = this._createElement('g');
 		
 		if (this._label !== null){
@@ -664,17 +671,20 @@ L.CircleMarkerEx = L.CircleMarker.extend({
 			this._container.appendChild(this._text);
 		}
 		
-		this._path = this._createElement('path');		
+		this._path =  this._createElement('path');		
 		this._container.appendChild(this._path);
 		
 		this._map._pathRoot.appendChild(this._container);
 	},
 	
 	_updatePath: function() {
-		L.CircleMarker.prototype._updatePath.call(this);
+    debugger;
+    if (this._map){ /* if map is null than this is removed marker */
+		  L.CircleMarker.prototype._updatePath.call(this);
 		
-		var point = this._map.latLngToLayerPoint(this._latlng);
-		this._text.setAttribute('x', point.x);
-		this._text.setAttribute('y', point.y);
+		  var point = this._map.latLngToLayerPoint(this._latlng);
+		  this._text.setAttribute('x', point.x);
+		  this._text.setAttribute('y', point.y);
+    }
 	}
 });
