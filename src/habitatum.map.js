@@ -52,10 +52,13 @@
  * @param {Array of GMarker} opt_markers Initial set of markers to be clustered.
  * @param {MarkerClustererOptions} opt_opts A container for optional arguments.
  */
-function HabitatumMap(element, api_key, opt_markers, opt_opts) {
+function HabitatumMap(element, api_key, opt_markers, cluster_handlers) {
   var dis = this;
   var map =  new L.Map(element);
+
+  var clusterEventHandlers = cluster_handlers
   
+
   // init open street map
   cloudmadeUrl = 'http://{s}.tile.cloudmade.com/'+api_key+'/997/256/{z}/{x}/{y}.png';
 	cloudmadeAttrib = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade';
@@ -188,7 +191,7 @@ function HabitatumMap(element, api_key, opt_markers, opt_opts) {
     }
 
     // No cluster contain the marker, create a new cluster.
-    cluster = new HabitatumCluster(this);
+    cluster = new HabitatumCluster(this, clusterEventHandlers);
     cluster.addMarker({
       'isAdded': isAdded,
       'marker': marker
@@ -369,12 +372,14 @@ function HabitatumMap(element, api_key, opt_markers, opt_opts) {
  * @private
  * @param {HabitatumMap} habitatumMap The marker cluster object
  */
-function HabitatumCluster(habitatumMap) {
+function HabitatumCluster(habitatumMap, eventHandlers) {
   var dis = this;
   
   var center_ = null;
   
   var clusterMarker = null;
+  var clusterEventHandlers = eventHandlers;
+
   var isClusterMarkerHidden = true;
   
   var markers_ = [];
@@ -388,7 +393,7 @@ function HabitatumCluster(habitatumMap) {
     var  marker = new L.CircleMarkerEx(latlng, { color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: 20, label: text });
 
   	marker.on('click', function (){
-  	    var pos = map.project(latlng);
+  	  var pos = map.project(latlng);
   		var sw = new L.Point(pos.x - padding, pos.y + padding);
   		sw = map.unproject(sw);
   		var ne = new L.Point(pos.x + padding, pos.y - padding);
@@ -396,7 +401,13 @@ function HabitatumCluster(habitatumMap) {
   		var zoom = map.getBoundsZoom(new L.LatLngBounds(sw, ne), map.getSize());
   		map.setView( latlng, zoom );
   	});
-  	
+
+    if (clusterEventHandlers){
+      for (clusterEventHandler in clusterEventHandlers){
+        marker.on(clusterEventHandler, clusterEventHandlers[clusterEventHandler], this);
+      }
+  	}
+
   	return marker;
   };
 
@@ -594,12 +605,17 @@ function HabitatumCluster(habitatumMap) {
   };
 }
 
-function HabitatumMarker(latlng, text){
+function HabitatumMarker(latlng, text, eventHandlers){
 	this.map_ = map;
 	this.latlng_ = latlng;
 	this.isHidden_ = false;
 	
 	this.marker_ = new L.Marker(latlng);
+  if (eventHandlers) {
+    for (markerEvent in eventHandlers){
+      this.marker_.on(markerEvent, eventHandlers[markerEvent], this);
+    }
+  }
 	this.marker_.bindPopup(text);
 	
 	this.remove = function () {
@@ -654,7 +670,7 @@ L.CircleMarkerEx = L.CircleMarker.extend({
     }
 	},
 	
-	_initPath: function() {
+  _initPath: function() {
 		var point = this._map.latLngToLayerPoint(this._latlng);
 		this._container = this._createElement('g');
 		
@@ -678,7 +694,6 @@ L.CircleMarkerEx = L.CircleMarker.extend({
 	},
 	
 	_updatePath: function() {
-    debugger;
     if (this._map){ /* if map is null than this is removed marker */
 		  L.CircleMarker.prototype._updatePath.call(this);
 		

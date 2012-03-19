@@ -1,25 +1,37 @@
 <html>
     <head>
-        <link rel="stylesheet" href="leaflet-0.3/leaflet.css" />
+        <link rel="stylesheet" href="leaflet-0.4/leaflet.css" />
         <!--[if lte IE 8]>
 	        <link rel="stylesheet" href="leaflet/leaflet.ie.css" />
         <![endif]-->
 
-        <script src="leaflet-0.3/leaflet-src.js" language="javascript" type="text/javascript"></script>
+        <script src="leaflet-0.4/leaflet-src.js" language="javascript" type="text/javascript"></script>
 	<script src="src/habitatum.map.js" language="javascript" type="text/javascript"></script>
     </head>
     <body>
 	    <div id="map" style="height: 600px"></div>
 	
 	    <script language="javascript" type="text/javascript">
-	        var map = new HabitatumMap('map', 'a262d37f27f54ce2af83dc7e8ef00c57');
-			
+	        var map = new HabitatumMap('map', 'a262d37f27f54ce2af83dc7e8ef00c57', null, {
+	        	"click": function(clusterClickEvent){
+					alert(1);
+				}
+				<!-- LIST OF EVENTS THAT LEAFLET SUPPORT -->
+			});			
+
 			var markers = [];
 			
 			var step = -0.09;
 			for(var markerIndex = 0; markerIndex < 10; markerIndex++){
 	
-				var marker = new HabitatumMarker(new L.LatLng(51.5, step), "text");
+				var marker = new HabitatumMarker(new L.LatLng(51.5, step), "text", 
+					{
+						"click": function(e){
+								alert("Some text");
+						}
+						<!-- LIST OF EVENTS THAT LEAFLET SUPPORT -->
+					}
+				);
 				markers.push(marker);
 				step = step - 0.01;
 			}
